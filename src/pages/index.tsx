@@ -1,9 +1,19 @@
 import type { NextPage } from "next";
+import SaleCard from "../components/SaleCard";
+import { getJumboSales, getJumboSalesMock } from "../utils/jumbo";
+import { JumboSaleItem } from "../utils/types";
 
-const Home: NextPage = () => {
+interface HomePageProps {
+  jumbo: JumboSaleItem[];
+}
+
+const Home: NextPage<HomePageProps> = ({ jumbo }) => {
+  console.log(jumbo);
   return (
     <div>
-      <h1 className="">Hello world!</h1>
+      {jumbo.map((item) => (
+        <SaleCard key={item.title} item={item} compact={false} />
+      ))}
     </div>
   );
 };
@@ -11,8 +21,10 @@ const Home: NextPage = () => {
 export default Home;
 
 export async function getStaticProps() {
+  // const jumboSales = await getJumboSales();
+  const jumboSales = await getJumboSalesMock();
   return {
-    props: [],
+    props: { jumbo: jumboSales },
     revalidate: 24 * 60 * 60,
   };
 }
