@@ -9,7 +9,7 @@ interface SaleCardProps {
 export default function SaleCard({ item }: SaleCardProps) {
   const imgSize = 100;
   return (
-    <div className="border rounded w-11/12 mb-2 mx-auto px-1 py-2 shadow bg-yellow-200 flex flex-row">
+    <div className="border rounded w-full mb-2 px-1 py-2 shadow bg-yellow-200 flex flex-row">
       <Image
         src={item.image}
         alt={item.title}
