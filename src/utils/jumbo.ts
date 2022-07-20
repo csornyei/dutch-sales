@@ -1,4 +1,5 @@
 import puppeteer, { Page, ElementHandle } from "puppeteer";
+import { JumboSales } from "./types";
 
 export async function getJumboSales() {
   const url = "https://www.jumbo.com/aanbiedingen/alles";
@@ -18,45 +19,66 @@ export async function getJumboSales() {
     const acceptButton = await page.$("button#onetrust-accept-btn-handler");
     await acceptButton?.click();
 
-    const results: any[] = [];
+    const resultsByCategory: JumboSales = {};
 
-    const toggleButtons = await page.$$(".jum-promotion-toggle>button");
-    let i = 0;
+    const toggleButtons = await page.$$(
+      ".jum-promotion-toggle>button:not(.disabled)"
+    );
     for (const button of toggleButtons) {
-      if (i !== 0) continue;
-      else i += 1;
       await button.click();
       await autoScroll(page);
 
-      const promotionCards = await page.$$(
-        "div.jum-card-grid.jum-card-grid-promotion>div"
+      const promotionGrids = await page.$$(
+        "div.jum-card-grid.jum-card-grid-promotion"
       );
 
+      for (const grid of promotionGrids) {
+        const gridParent = await grid.getProperty("parentNode");
+        const gridTitle = (
+          await getTextContent(
+            gridParent as ElementHandle,
+            "h2.category-title-header"
+          )
+        ).trim();
+        if (!(gridTitle in resultsByCategory)) {
+          resultsByCategory[gridTitle] = [];
+        }
+        const promotionCards = await grid.$$(
+        "div.jum-card-grid.jum-card-grid-promotion>div"
+      );
       for (const card of promotionCards) {
-        const image = await (
-          await (await card.$("img"))?.getProperty("src")
-        )?.jsonValue();
-        const tag = await getTextContent(card, "span.jum-tag");
+          const image = await getProperty(card, "img", "src");
+          const tag = await getTextContent(card, ".jum-tag");
         const title = await getTextContent(card, "h3.jum-heading.title");
-        const subtitle = await getTextContent(card, "h4.jum-heading.subtitle");
+          const titleLink = await getProperty(
+            card,
+            "h3.jum-heading.title>a",
+            "href"
+          );
+          const subtitle = await getTextContent(
+            card,
+            "h4.jum-heading.subtitle"
+          );
         const information = await getTextContent(card, ".information");
         const dates = information
           .split(title)
           .filter((s: string) => s.includes("t/m"))[0];
         const [from, until] = dates.split("t/m");
 
-        results.push({
-          image,
+          resultsByCategory[gridTitle].push({
+            image: fixRelativeLinks(image),
           tag,
           title,
+            link: fixRelativeLinks(titleLink),
           subtitle,
           from: from ? from.trim() : "",
           until: until ? until.trim() : "",
         });
+        }
       }
     }
 
-    return results;
+    return resultsByCategory;
   } catch (err) {
     console.error(err);
     return [];
@@ -82,11 +104,24 @@ async function autoScroll(page: Page) {
   });
 }
 
-async function getTextContent(parent: ElementHandle, selector: string) {
+async function getProperty(
+  parent: ElementHandle,
+  selector: string,
+  propertyName: string
+) {
   const el = await parent.$(selector);
-  const textContent = await el?.getProperty("textContent");
-  const text = await textContent?.jsonValue();
-  return typeof text === "string" ? text : "";
+  const textContent = await el?.getProperty(propertyName);
+  const text = (await textContent?.jsonValue()) as string;
+  return text;
+}
+
+async function getTextContent(parent: ElementHandle, selector: string) {
+  return (await getProperty(parent, selector, "textContent")).trim();
+}
+
+function fixRelativeLinks(link: string) {
+  if (link.includes("https")) return link;
+  return `https://www.jumbo.com${link}`;
 }
 
 export async function getJumboSalesMock() {
