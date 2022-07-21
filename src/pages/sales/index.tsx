@@ -24,8 +24,7 @@ const Home: NextPage<HomePageProps> = ({ jumbo }) => {
 export default Home;
 
 export async function getStaticProps() {
-  // const jumboSales = await getJumboSales();
-  const jumboSales = await getJumboSalesMock();
+  const jumboSales = await getJumboSales();
   return {
     props: { jumbo: jumboSales },
     revalidate: 24 * 60 * 60,
