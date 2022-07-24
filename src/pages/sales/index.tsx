@@ -1,9 +1,9 @@
 import type { NextPage } from "next";
-import { Fragment, useState } from "react";
-import SaleCard from "../../components/SaleCard";
+import { Fragment } from "react";
+import { createClient } from "redis";
 import SalesList from "../../components/SalesList";
-import { getJumboSales, getJumboSalesMock } from "../../utils/jumbo";
-import { JumboSaleItem, JumboSales } from "../../utils/types";
+import { getJumboSales } from "../../utils/jumbo";
+import { JumboSales } from "../../utils/types";
 
 interface HomePageProps {
   jumbo: JumboSales;
@@ -25,6 +25,15 @@ export default Home;
 
 export async function getStaticProps() {
   const jumboSales = await getJumboSales();
+  const client = createClient({
+    url: `redis://:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+  });
+
+  await client.connect();
+
+  const pong = await client.ping();
+
+  console.log(pong);
   return {
     props: { jumbo: jumboSales },
     revalidate: 24 * 60 * 60,
