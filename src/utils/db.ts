@@ -1,4 +1,4 @@
-import { initializeApp, cert } from "firebase-admin/app";
+import admin from "firebase-admin";
 import { getFirestore, Firestore } from "firebase-admin/firestore";
 
 class Database {
@@ -8,9 +8,11 @@ class Database {
     if (!process.env.GCLOUD_CERT_FILE_PATH) {
       throw new Error("Google Cloud certificate path is missing!");
     }
-    initializeApp({
-      credential: cert(process.env.GCLOUD_CERT_FILE_PATH!),
-    });
+    if (!admin.apps.length) {
+      admin.initializeApp({
+        credential: admin.credential.cert(process.env.GCLOUD_CERT_FILE_PATH!),
+      });
+    }
     this.instance = getFirestore();
   }
 
