@@ -3,6 +3,7 @@ import { Fragment } from "react";
 import SalesList from "../../components/SalesList";
 import { SaleItem, SaleItemList } from "../../utils/types";
 import db from "../../utils/db";
+import ErrorPage from "../../components/errorPage";
 
 interface HomePageProps {
   items: SaleItemList;
@@ -10,7 +11,9 @@ interface HomePageProps {
 }
 
 const Home: NextPage<HomePageProps> = ({ items, error }) => {
-  console.log(items);
+  if (error.length > 0) {
+    return <ErrorPage />;
+  }
   return (
     <Fragment>
       <main className="flex flex-col flex-wrap w-full mt-8">
@@ -35,7 +38,6 @@ export async function getStaticProps() {
         items[item.category] = [];
       }
     });
-    console.log(results);
     return {
       props: { error: "", items },
     };
