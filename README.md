@@ -8,6 +8,6 @@ To start the app you need a Google Cloud certificate JSON and set `GCLOUD_CERT_F
 
 ## Todos:
 
-- [ ] routes for different supermarkets
+- [x] routes for different supermarkets
 - [ ] filtering by category
 - [ ] shopping list and "Add to shopping list"

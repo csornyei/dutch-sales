@@ -1,5 +1,6 @@
 import admin from "firebase-admin";
 import { getFirestore, Firestore } from "firebase-admin/firestore";
+import { SupportedSites } from "./types";
 
 class Database {
   private instance: Firestore;
@@ -20,6 +21,15 @@ class Database {
     const res = await this.instance.collection("sales").get();
     const results: any[] = [];
     res.forEach((doc) => results.push(doc.data()));
+    return results;
+  }
+
+  async getBySite(siteName: SupportedSites) {
+    const collection = await this.instance.collection("sales");
+    const results: any[] = [];
+    (await collection.where("site", "==", siteName).get()).forEach((doc) =>
+      results.push(doc.data())
+    );
     return results;
   }
 }

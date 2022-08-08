@@ -4,6 +4,8 @@ import SalesList from "../../components/SalesList";
 import { SaleItem, SaleItemList } from "../../utils/types";
 import db from "../../utils/db";
 import ErrorPage from "../../components/errorPage";
+import SalesPage from "../../components/salesPage";
+import Navbar from "../../components/navbar";
 
 interface HomePageProps {
   items: SaleItemList;
@@ -11,16 +13,10 @@ interface HomePageProps {
 }
 
 const Home: NextPage<HomePageProps> = ({ items, error }) => {
-  if (error.length > 0) {
-    return <ErrorPage />;
-  }
   return (
     <Fragment>
-      <main className="flex flex-col flex-wrap w-full mt-8">
-        {Object.entries(items).map(([key, sales]) => {
-          return <SalesList key={`jumbo-${key}`} title={key} sales={sales} />;
-        })}
-      </main>
+      <Navbar />
+      {error.length > 0 ? <ErrorPage /> : <SalesPage items={items} />}
     </Fragment>
   );
 };
@@ -31,19 +27,26 @@ export async function getStaticProps() {
   try {
     const results = (await db.getAll()) as SaleItem[];
     const items: SaleItemList = {};
-    results.forEach((item) => {
-      if (item.category in items) {
-        items[item.category].push(item);
-      } else {
-        items[item.category] = [];
-      }
-    });
+    results
+      .filter((item) => {
+        return (
+          Object.keys(item).includes("category") &&
+          typeof item.category !== "undefined"
+        );
+      })
+      .forEach((item) => {
+        if (item.category in items) {
+          items[item.category].push(item);
+        } else {
+          items[item.category] = [];
+        }
+      });
     return {
       props: { error: "", items },
     };
   } catch (e) {
     return {
-      props: { error: "server error", jumbo: [] },
+      props: { error: "server error", items: {} },
       revalidate: 10 * 60,
     };
   }

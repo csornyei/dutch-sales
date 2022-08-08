@@ -19,6 +19,5 @@ export enum SupportedSites {
   jumbo = "jumbo",
   albertHeijn = "albertHeijn",
   aldi = "aldi",
-  coop = "coop",
   ekoplaza = "ekoplaza",
 }
