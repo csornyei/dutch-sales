@@ -1,15 +1,35 @@
 import Image from "next/image";
 import Link from "next/link";
-import { JumboSaleItem } from "../utils/types";
+import { SaleItem, SupportedSites } from "../utils/types";
 
 interface SaleCardProps {
-  item: JumboSaleItem;
+  item: SaleItem;
 }
 
 export default function SaleCard({ item }: SaleCardProps) {
   const imgSize = 100;
+  let bgColor = "bg-yellow-200";
+  switch (item.site) {
+    case SupportedSites.albertHeijn:
+      bgColor = "bg-cyan-300";
+      break;
+    case SupportedSites.aldi:
+      bgColor = "bg-sky-500";
+      break;
+    case SupportedSites.coop:
+      bgColor = "bg-orange-300";
+      break;
+    case SupportedSites.ekoplaza:
+      bgColor = "bg-violet-300";
+      break;
+    case SupportedSites.jumbo:
+      bgColor = "bg-yellow-200";
+      break;
+  }
   return (
-    <div className="border rounded w-full mb-2 px-1 py-2 shadow bg-yellow-200 flex flex-row">
+    <div
+      className={`border rounded w-full mb-2 px-1 py-2 shadow ${bgColor} flex flex-row`}
+    >
       <Image
         src={item.image}
         alt={item.title}

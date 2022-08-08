@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { JumboSaleItem } from "../utils/types";
+import { SaleItem } from "../utils/types";
 import { ChevronDown, ChevronUp } from "./icons";
 import SaleCard from "./SaleCard";
 
 interface SalesListProps {
   title: string;
-  sales: JumboSaleItem[];
+  sales: SaleItem[];
 }
 
 const SalesList: React.FC<SalesListProps> = (props) => {
